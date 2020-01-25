@@ -617,7 +617,7 @@ namespace lwr_hw
     else
     {
       setControlStrategy(desired_strategy);
-      std::cout << "The ControlStrategy changed to: " << getControlStrategy() << std::endl;
+      ROS_INFO_STREAM("[LWR-HW] The ControlStrategy changed to: " << getControlStrategy());
     }
   }
 

@@ -106,7 +106,7 @@ public:
         break;
 
       case JOINT_IMPEDANCE:
-        // compute the gracity term
+        // compute the gravity term
         f_dyn_solver_->JntToGravity(joint_position_kdl_, gravity_effort_);
         
         for(int j=0; j < n_joints_; j++)

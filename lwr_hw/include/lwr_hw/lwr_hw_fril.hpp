@@ -200,10 +200,10 @@ public:
           break;
       }
 
-      // if sucess during the switch in FRI, set the ROS strategy
+      // if success during the switch in FRI, set the ROS strategy
       setControlStrategy(desired_strategy);
 
-      std::cout << "The ControlStrategy changed to: " << getControlStrategy() << std::endl;
+      ROS_INFO_STREAM("[FRIL] The ControlStrategy changed to: " << getControlStrategy());
     }
   }
 
