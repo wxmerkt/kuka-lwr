@@ -117,6 +117,7 @@ public:
         {
           std::lock_guard<std::mutex> lock(device_mutex_);
           device_->doPositionControl(newJntPosition, false);
+          ROS_WARN_STREAM_THROTTLE(1,"position control!");
         }
         break;
 
@@ -137,15 +138,25 @@ public:
       case JOINT_IMPEDANCE:
         for(int j=0; j < n_joints_; j++)
         {
-          newJntPosition[j] = joint_set_point_command_[j];
+        //   newJntPosition[j] = joint_set_point_command_[j];
           newJntAddTorque[j] = joint_effort_command_[j];
-          newJntStiff[j] = joint_stiffness_command_[j];
-          newJntDamp[j] = joint_damping_command_[j];
+          newJntStiff[j] = 500.; //joint_stiffness_command_[j];
+          newJntDamp[j] = 0.2; //joint_damping_command_[j];
         }
         {
           std::lock_guard<std::mutex> lock(device_mutex_);
-          device_->doJntImpedanceControl(newJntPosition, newJntStiff, newJntDamp, newJntAddTorque, false);          
+          device_->doJntImpedanceControl(device_->getMsrMsrJntPosition(), newJntStiff, newJntDamp, device_->getMsrJntTrq(), false);          
         }
+        // for(int j=0; j < n_joints_; j++)
+        // {
+        //     newJntAddTorque[j] = joint_effort_command_[j];
+        //     newJntStiff[j] = 0.0;
+        // }
+        // // mirror the position
+        // {
+        //   std::lock_guard<std::mutex> lock(device_mutex_);
+        //   device_->doJntImpedanceControl(device_->getMsrMsrJntPosition(), newJntStiff, NULL, newJntAddTorque, false);          
+        // }
         break;
 
      case JOINT_EFFORT:
