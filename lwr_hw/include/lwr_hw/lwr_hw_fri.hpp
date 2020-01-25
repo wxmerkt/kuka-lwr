@@ -149,6 +149,7 @@ public:
         break;
 
      case JOINT_EFFORT:
+        ROS_ERROR_STREAM("In JOINT_EFFORT mode but this should not be supported.");
         for(int j=0; j < n_joints_; j++)
         {
             newJntAddTorque[j] = joint_effort_command_[j];
@@ -224,12 +225,12 @@ public:
       }
       else if( desired_strategy == JOINT_IMPEDANCE) {
         ROS_INFO_STREAM_THROTTLE(1, "Switching to JOINT_IMPEDANCE");
-	std::lock_guard<std::mutex> lock(device_mutex_);
+        std::lock_guard<std::mutex> lock(device_mutex_);
         device_->setToKRLInt(0, JOINT_IMPEDANCE);
       }
       else if( desired_strategy == CARTESIAN_IMPEDANCE) {
         ROS_INFO_STREAM_THROTTLE(1, "Switching to CARTESIAN_IMPEDANCE");
-	std::lock_guard<std::mutex> lock(device_mutex_);
+        std::lock_guard<std::mutex> lock(device_mutex_);
         device_->setToKRLInt(0, CARTESIAN_IMPEDANCE);
       }
 
@@ -238,7 +239,7 @@ public:
 
       ROS_INFO_STREAM_THROTTLE(1, "Set control strategy");
       setControlStrategy(desired_strategy);
-      std::cout << "The ControlStrategy changed to: " << getControlStrategy() << std::endl;
+      ROS_INFO_STREAM("[FRI] The ControlStrategy changed to: " << getControlStrategy());
     }
   }
 
@@ -266,8 +267,17 @@ private:
   {
     while(!stopKRCComm_)
     {
-      std::lock_guard<std::mutex> lock(device_mutex_);
-      device_->doDataExchange();
+        {
+            std::lock_guard<std::mutex> lock(device_mutex_);
+            device_->doSendData();
+        }
+        usleep(500);
+        {
+            std::lock_guard<std::mutex> lock(device_mutex_);
+            device_->doReceiveData();
+        }
+    //   std::lock_guard<std::mutex> lock(device_mutex_);
+    //   device_->doDataExchange();
     }
     return;
   }
@@ -309,11 +319,14 @@ public:
     bool stopped = false;
     while ( !stopped )
     {
-      {
-        std::lock_guard<std::mutex> lock(device_mutex_);
-        stopped = device_->getFrmKRLInt(1) == 0;
-      }
-      usleep(100000);
+        {
+            std::lock_guard<std::mutex> lock(device_mutex_);
+            device_->setToKRLInt(1, 0);
+            usleep(400);
+            stopped = device_->getFrmKRLInt(1) == 0;
+        }
+        usleep(100000);
+        ROS_WARN_STREAM_THROTTLE(1, "Waiting for monitor mode..."); // device_->getState(): " << device_->getState());
     }
     return;
   }
