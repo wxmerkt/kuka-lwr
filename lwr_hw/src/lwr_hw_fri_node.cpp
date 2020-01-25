@@ -154,10 +154,10 @@ int main( int argc, char** argv )
       wasStopHandled = true;
     }
 
-    if( !lwr_robot.running() )
-    {
-      resetControllers = true;
-    }
+    // if( !lwr_robot.running() )
+    // {
+    //   resetControllers = true;
+    // }
 
     // update the controllers
     manager.update(now, period, resetControllers);
