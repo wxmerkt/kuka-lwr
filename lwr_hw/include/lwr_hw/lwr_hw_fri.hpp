@@ -117,7 +117,7 @@ public:
         {
           std::lock_guard<std::mutex> lock(device_mutex_);
           device_->doPositionControl(newJntPosition, false);
-          ROS_WARN_STREAM_THROTTLE(1,"position control!");
+          // ROS_WARN_STREAM_THROTTLE(1,"position control!");
         }
         break;
 
